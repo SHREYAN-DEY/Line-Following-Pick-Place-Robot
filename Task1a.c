@@ -137,7 +137,7 @@ float PidLogic(int pos){
     static float I = 0;
     float P = 0, D = 0;
 
-    float Kp = 0.07, Ki = 0.0008, Kd = 0.6;   // Example values
+    float Kp = 12.0, Ki = 0.12, Kd = 0.9;   // Example values
     
     float error = 0 - pos;
 
@@ -157,8 +157,8 @@ void* control_loop(void* arg) {
     SocketClient* c = (SocketClient*)arg;
     int weights[] = {-2, -1, 0, 1, 2};
     float position = 0;
-    float base_speed = 1.0f;
-    float max_speed = 1.5f;
+    float base_speed = 9.0f;
+    float max_speed = 19.0f;
     
     while (c->running) {
         position = weightAvg(c, weights);   // current position
