@@ -125,22 +125,59 @@ float weightAvg(SocketClient* client, int *weight){
     }
     
     if (sum == 0) {
-        printf("Error - no line detected");
         return 0;
     }
     // printf("\n\nsum = %f\n", sum);
     // printf("weightSum = %f\n", weightSum);
-    float avg = weightSum / sum;
-    return avg;
+    return weightSum / sum;
 }
 
+float PidLogic(int pos){
+    static float previous_error = 0;
+    static float I = 0;
+    float P = 0, D = 0;
+
+    float Kp = 0.07, Ki = 0.0008, Kd = 0.6;   // Example values
+    
+    float error = 0 - pos;
+
+    I = I + error;
+    // Prevent integral windup
+    if (I > 100) I = 100;
+    if (I < -100) I = -100;
+
+    P = error; 
+    D = error - previous_error;   
+    previous_error = error; 
+
+    return (Kp * P) + (Ki * I) + (Kd * D);
+}
 
 void* control_loop(void* arg) {
     SocketClient* c = (SocketClient*)arg;
-    int max_sensor_val = 1023;
+    int weights[] = {-2, -1, 0, 1, 2};
+    float position = 0;
+    float base_speed = 1.0f;
+    float max_speed = 1.5f;
     
     while (c->running) {
+        position = weightAvg(c, weights);   // current position
+        float correction = PidLogic(position);     // it doesnt return anything just calculate pid value and set the motor speed
         
+        // calculate motor speed 
+        float vl = base_speed - correction;
+        float vr = base_speed + correction;
+
+        // limit speed overflow
+        if(vl > max_speed) vl = max_speed;
+        if(vl < -max_speed) vl = -max_speed;
+        if(vr > max_speed) vr = max_speed;
+        if(vr < -max_speed) vr = -max_speed;
+
+        // set speed of motor
+        set_motor(c, vl, vr);
+
+        SLEEP(50);
     }
     return NULL;
 }

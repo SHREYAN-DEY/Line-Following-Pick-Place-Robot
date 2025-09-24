@@ -48,7 +48,10 @@ void PidLogic(int pos, int weights){
         previous_I = I; 
         previous_error = error; 
     }
+    float vl = base_speed - PIDvalue;
+    float vr = base_speed + PIDvalue;
 }
+
 
 int main(){
     // int sensor[] = {0, 1023, 1023, 1023, 1023};
