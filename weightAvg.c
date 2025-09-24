@@ -32,6 +32,23 @@ float weightAvg(int *sensor, int *weight, int len){
     float avg = weightSum / sum;
     return avg;
 }
+void PidLogic(int pos, int weights){
+    float Kp = 0.07, Ki = 0.0008, Kd = 0.6;   // Example values
+    float P = 0, I = 0, D = 0,  PIDvalue;
+    int base_speed = 1.0f, max_speed = 1.5f;
+    float previous_error = 0 , previous_I = 0;
+    while(1){
+        float error = 0 - pos;
+        P = error; 
+        I = I + previous_I; 
+        D = error - previous_error; 
+
+        PIDvalue = (Kp * P) + (Ki * I) + (Kd * D); 
+
+        previous_I = I; 
+        previous_error = error; 
+    }
+}
 
 int main(){
     // int sensor[] = {0, 1023, 1023, 1023, 1023};
